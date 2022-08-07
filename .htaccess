@@ -1,0 +1,27 @@
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # Authorization ヘッダーの処理
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # publicディレクトリ内でのディレクトリ以外の末尾スラッシュの削除
+    RewriteBase /public
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^(.*)/+$ %1 [L,R=301]
+
+    # publicディレクトリ以外での末尾スラッシュの削除してindex.phpを適用
+    RewriteBase /
+    RewriteCond %{REQUEST_URI} !public/(.*)
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^(.*)/+$ %1 [R=301]
+
+    # Httpリクエスト
+    RewriteCond %{REQUEST_URI} !public/(.*)
+    RewriteRule ^ index.php [L]
+</IfModule>
